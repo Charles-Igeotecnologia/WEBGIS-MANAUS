@@ -44,9 +44,10 @@ export function GisApp({ onExit }: GisAppProps) {
       setDataLoading(true);
       setDataError(null);
       try {
+        const basePath = "/WEBGIS-MANAUS";
         const [bRes, lRes] = await Promise.all([
-          fetch("/data/bairros.json"),
-          fetch("/data/localidades.json"),
+          fetch(`${basePath}/data/bairros.json`),
+          fetch(`${basePath}/data/localidades.json`),
         ]);
         if (!bRes.ok || !lRes.ok) throw new Error("Falha ao carregar dados geográficos");
         const b: BairrosCollection = await bRes.json();
