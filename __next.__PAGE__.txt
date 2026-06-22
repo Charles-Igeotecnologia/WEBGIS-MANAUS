@@ -1,0 +1,9 @@
+1:"$Sreact.fragment"
+2:I[47257,["/WEBGIS-MANAUS/_next/static/chunks/0psdecxjcd1zz.js","/WEBGIS-MANAUS/_next/static/chunks/158myu8e_yme3.js","/WEBGIS-MANAUS/_next/static/chunks/1ajzkonmrrhdl.js"],"ClientPageRoot"]
+3:I[52683,["/WEBGIS-MANAUS/_next/static/chunks/0psdecxjcd1zz.js","/WEBGIS-MANAUS/_next/static/chunks/158myu8e_yme3.js","/WEBGIS-MANAUS/_next/static/chunks/1ajzkonmrrhdl.js","/WEBGIS-MANAUS/_next/static/chunks/2k6yp40mmkq8m.js","/WEBGIS-MANAUS/_next/static/chunks/1-x3h9tkhbh1q.js"],"default"]
+6:I[97367,["/WEBGIS-MANAUS/_next/static/chunks/0psdecxjcd1zz.js","/WEBGIS-MANAUS/_next/static/chunks/158myu8e_yme3.js","/WEBGIS-MANAUS/_next/static/chunks/1ajzkonmrrhdl.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/WEBGIS-MANAUS/_next/static/chunks/2k6yp40mmkq8m.js","async":true}],["$","script","script-1",{"src":"/WEBGIS-MANAUS/_next/static/chunks/1-x3h9tkhbh1q.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"vcRiDf9NMo6u-wj9p0mba"}
+4:{}
+5:"$0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null
