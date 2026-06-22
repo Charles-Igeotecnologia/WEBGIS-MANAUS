@@ -125,7 +125,7 @@ export function GisApp({ onExit }: GisAppProps) {
       )}
 
       {/* Report panel */}
-      <ReportPanel onFitFeature={fitFeature} />
+      <ReportPanel />
 
       {/* bottom hint when nothing selected and no proximity */}
       {!reportOpen && !selected && !proximityOrigin && (

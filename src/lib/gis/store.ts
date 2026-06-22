@@ -41,6 +41,8 @@ interface GisState {
   reportOpen: boolean;
   reportNotes: string;
   reportTitle: string;
+  /** Incremented each time a "fit to feature" is requested; both maps react to changes. */
+  fitRequestNonce: number;
 
   // actions
   setBairros: (d: BairrosCollection) => void;
@@ -50,6 +52,8 @@ interface GisState {
 
   setBasemap: (b: BasemapKey) => void;
   setView: (center: [number, number], zoom: number) => void;
+  /** Zoom both maps to the currently selected feature. */
+  fitToFeature: () => void;
 
   toggleBairros: () => void;
   toggleLocalidades: () => void;
@@ -102,6 +106,7 @@ export const useGisStore = create<GisState>((set) => ({
   reportOpen: false,
   reportNotes: "",
   reportTitle: "Relatório Técnico Cartográfico",
+  fitRequestNonce: 0,
 
   setBairros: (d) => set({ bairros: d }),
   setLocalidades: (d) => set({ localidades: d }),
@@ -110,6 +115,41 @@ export const useGisStore = create<GisState>((set) => ({
 
   setBasemap: (b) => set({ basemap: b }),
   setView: (center, zoom) => set({ center, zoom }),
+  fitToFeature: () => {
+    const s = useGisStore.getState();
+    if (!s.selected) return;
+    const f: any = s.selected.feature;
+    // Compute a bounding box from the feature geometry coordinates
+    const coords: any = f.geometry.coordinates;
+    const flat: [number, number][] = [];
+    const walk = (c: any) => {
+      if (Array.isArray(c) && typeof c[0] === "number") {
+        flat.push([c[1], c[0]] as [number, number]); // [lat, lng]
+      } else if (Array.isArray(c)) {
+        c.forEach(walk);
+      }
+    };
+    walk(coords);
+    if (flat.length < 2) return;
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    for (const [lat, lng] of flat) {
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+    }
+    const cx = (minLat + maxLat) / 2;
+    const cy = (minLng + maxLng) / 2;
+    // Estimate zoom to fit the bounds within a reasonable view
+    const deltaLat = maxLat - minLat;
+    const deltaLng = maxLng - minLng;
+    const fitZoom = Math.min(16, Math.max(12, Math.floor(Math.log2(360 / Math.max(deltaLat, deltaLng)))));
+    set({
+      center: [cx, cy],
+      zoom: fitZoom,
+      fitRequestNonce: s.fitRequestNonce + 1,
+    });
+  },
 
   toggleBairros: () =>
     set((s) => ({ layers: { ...s.layers, bairros: !s.layers.bairros } })),

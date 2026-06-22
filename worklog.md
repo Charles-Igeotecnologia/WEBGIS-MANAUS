@@ -49,3 +49,26 @@ Stage Summary:
 - All 3 feature pillars (cartographic navigation, A4 report, spatial interactions) implemented and browser-verified.
 - Premium dark theme (emerald/amber), glassmorphism, responsive, accessible.
 - Data served from `/public/data/*.json` (64 bairros, 662 localidades).
+
+---
+Task ID: 2
+Agent: main (Z.ai Code)
+Task: Corrigir inconsistências e remover boilerplate não utilizado detectado na análise do projeto.
+
+Work Log:
+- Corrigida a legenda de contagem de bairros por zona em `LandingPage.tsx`. Os valores anteriores (23/11/9/12/5/4) divergiam do GeoJSON real; agora refletem os dados efetivos: Norte 10, Sul 18, Leste 11, Oeste 8, Centro-Oeste 11, Centro-Sul 6 (total 64). Stats do hero (64/662/6/11) já estavam corretos e foram mantidos.
+- Removido boilerplate Prisma/API nunca importado pelo GIS:
+  - Excluídos: `src/lib/db.ts`, `prisma/schema.prisma`, `db/custom.db`, `src/app/api/route.ts` (e as pastas vazias `prisma/`, `db/`, `src/app/api/`).
+  - Removidas dependências `prisma` e `@prisma/client` do `package.json`.
+  - Removidos scripts `db:push`, `db:generate`, `db:migrate`, `db:reset` do `package.json`.
+- Limpeza dos scripts de build/start:
+  - `.zscripts/dev.sh`: removido o bloco `bun run db:push`.
+  - `.zscripts/build.sh`: removido o bloco que copiava `./db/custom.db` para o artefato de build e executava `db:push` (falhava a build na ausência do banco).
+  - `.zscripts/start.sh`: removida a validação/exportação de `DATABASE_URL` e a checagem do banco empacotado.
+- `.env` reescrito: removido o `DATABASE_URL` apontando para o caminho herdado do scaffold (`/home/z/my-project/db/custom.db`); agora apenas documenta que a app é 100% client-side.
+- Validação: `bash -n` OK nos 3 scripts; `package.json` parse OK; varredura final não encontrou nenhuma referência residual a prisma/DATABASE_URL/db:push/custom.db.
+
+Stage Summary:
+- Aplicação enxuta: o GIS continua 100% client-side, com dados vindos de `/public/data/*.json`.
+- Landing page agora exibe contagens consistentes com os dados reais.
+- Pipeline de build/start não depende mais de um banco SQLite inexistente.

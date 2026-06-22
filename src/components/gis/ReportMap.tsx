@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useGisStore } from "@/lib/gis/store";
 import { BASEMAPS } from "@/lib/gis/constants";
-import { bairroStyle, localidadeStyle } from "@/lib/gis/layers";
+import { bairroStyle, localidadeStyle, bairroLabelContent } from "@/lib/gis/layers";
 import { featureCentroid } from "@/lib/gis/geo";
 
 /**
@@ -29,6 +29,7 @@ export function ReportMap() {
   const bairros = useGisStore((s) => s.bairros);
   const localidades = useGisStore((s) => s.localidades);
   const selected = useGisStore((s) => s.selected);
+  const fitRequestNonce = useGisStore((s) => s.fitRequestNonce);
 
   /* init */
   useEffect(() => {
@@ -83,7 +84,6 @@ export function ReportMap() {
     if (def.overlayUrl) {
       const ov = L.tileLayer(def.overlayUrl, { maxZoom: def.maxZoom, subdomains: "abc" });
       ov.addTo(map);
-      ov.bringToBack();
       overlayRef.current = ov;
     }
   }, [basemap]);
@@ -96,6 +96,23 @@ export function ReportMap() {
     setTimeout(() => map.invalidateSize(), 60);
   }, [center, zoom]);
 
+  /* React to fit request (Ajustar à feição) */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selected || fitRequestNonce === 0) return;
+    try {
+      if (selected.kind === "localidade") {
+        map.setView(selected.center, 15, { animate: false });
+      } else {
+        const bounds = L.geoJSON(selected.feature).getBounds();
+        map.fitBounds(bounds, { padding: [20, 20] });
+      }
+      setTimeout(() => map.invalidateSize(), 60);
+    } catch (e) {
+      console.error("Erro ao focar limites da feição no relatório", e);
+    }
+  }, [fitRequestNonce, selected]);
+
   /* bairros */
   useEffect(() => {
     const g = layersRef.current.bairros;
@@ -103,13 +120,28 @@ export function ReportMap() {
     g.clearLayers();
     if (!bairros || !layers.bairros) return;
     bairros.features.forEach((f) => {
-      if (!layers.zonas[f.properties.ZONAS]) return;
+      const zona = f.properties.ZONAS;
+      if (!layers.zonas[zona]) return;
       L.geoJSON(f, {
-        style: () => bairroStyle(f.properties.ZONAS, false),
+        style: () => bairroStyle(zona, false),
         interactive: false,
       }).addTo(g);
+
+      if (layers.bairroLabels) {
+        const [lat, lng] = featureCentroid(f);
+        L.marker([lat, lng], {
+          icon: L.divIcon({
+            className: "bairro-halo-label",
+            html: bairroLabelContent(f.properties.NOME_BAIRR),
+            iconSize: [0, 0],
+            iconAnchor: [0, 0],
+          }),
+          interactive: false,
+          keyboard: false,
+        }).addTo(g);
+      }
     });
-  }, [bairros, layers.bairros, JSON.stringify(layers.zonas)]);
+  }, [bairros, layers.bairros, layers.bairroLabels, JSON.stringify(layers.zonas)]);
 
   /* localidades */
   useEffect(() => {

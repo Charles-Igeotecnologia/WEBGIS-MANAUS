@@ -133,7 +133,7 @@ export function LandingPage({ onLaunch }: LandingPageProps) {
               <MapIcon className="h-5 w-5 text-background" strokeWidth={2.5} />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-bold tracking-tight">Web GIS Manaus</p>
+              <p className="text-sm font-bold tracking-tight">Território Digital - Web GIS Manaus</p>
               <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 Plataforma Cartográfica
               </p>
@@ -436,12 +436,12 @@ export function LandingPage({ onLaunch }: LandingPageProps) {
                   </div>
                   <div className="space-y-2.5">
                     {[
-                      { c: "#34d399", n: "ZONA NORTE", k: "23 bairros" },
-                      { c: "#fb7185", n: "ZONA SUL", k: "11 bairros" },
-                      { c: "#fbbf24", n: "ZONA LESTE", k: "9 bairros" },
-                      { c: "#2dd4bf", n: "ZONA OESTE", k: "12 bairros" },
-                      { c: "#e879f9", n: "ZONA CENTRO-OESTE", k: "5 bairros" },
-                      { c: "#fb923c", n: "ZONA CENTRO-SUL", k: "4 bairros" },
+                      { c: "#34d399", n: "ZONA NORTE", k: "10 bairros" },
+                      { c: "#fb7185", n: "ZONA SUL", k: "18 bairros" },
+                      { c: "#fbbf24", n: "ZONA LESTE", k: "11 bairros" },
+                      { c: "#2dd4bf", n: "ZONA OESTE", k: "8 bairros" },
+                      { c: "#e879f9", n: "ZONA CENTRO-OESTE", k: "11 bairros" },
+                      { c: "#fb923c", n: "ZONA CENTRO-SUL", k: "6 bairros" },
                     ].map((z) => (
                       <div
                         key={z.n}
@@ -505,7 +505,7 @@ export function LandingPage({ onLaunch }: LandingPageProps) {
                 <MapIcon className="h-4 w-4 text-background" strokeWidth={2.5} />
               </div>
               <div className="text-sm">
-                <p className="font-semibold">Web GIS Manaus</p>
+                <p className="font-semibold">Território Digital - Web GIS Manaus</p>
                 <p className="text-xs text-muted-foreground">
                   Leaflet · Tailwind CSS · Lucide Icons
                 </p>

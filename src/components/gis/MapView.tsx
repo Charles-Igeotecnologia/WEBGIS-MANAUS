@@ -39,6 +39,9 @@ export default function MapView({ onReady }: MapViewProps) {
   const selected = useGisStore((s) => s.selected);
   const proximityOrigin = useGisStore((s) => s.proximityOrigin);
   const proximityResults = useGisStore((s) => s.proximityResults);
+  const fitRequestNonce = useGisStore((s) => s.fitRequestNonce);
+  const center = useGisStore((s) => s.center);
+  const zoom = useGisStore((s) => s.zoom);
   const setView = useGisStore((s) => s.setView);
   const setSelected = useGisStore((s) => s.setSelected);
   const setProximity = useGisStore((s) => s.setProximity);
@@ -289,7 +292,6 @@ export default function MapView({ onReady }: MapViewProps) {
         subdomains: "abc",
       });
       overlay.addTo(map);
-      overlay.bringToBack();
       overlayLayerRef.current = overlay;
     }
   }, [basemap]);
@@ -489,6 +491,38 @@ export default function MapView({ onReady }: MapViewProps) {
       );
     });
   }, [proximityOrigin, proximityResults]);
+
+  // React to fit request from store (Ajustar à feição)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selected || fitRequestNonce === 0) return;
+    try {
+      if (selected.kind === "localidade") {
+        map.setView(selected.center, 15, { animate: true });
+      } else {
+        const bounds = L.geoJSON(selected.feature).getBounds();
+        map.fitBounds(bounds, { padding: [80, 80], maxZoom: 15 });
+      }
+    } catch (e) {
+      console.error("Erro ao focar limites da feição", e);
+    }
+  }, [fitRequestNonce, selected]);
+
+  // Sync zoom and center from store (only if changed, to avoid loop)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const mapCenter = map.getCenter();
+    const mapZoom = map.getZoom();
+    
+    // threshold to avoid tiny discrepancies from floating point math
+    const centerChanged = Math.abs(mapCenter.lat - center[0]) > 0.0001 || Math.abs(mapCenter.lng - center[1]) > 0.0001;
+    const zoomChanged = mapZoom !== zoom;
+    
+    if (centerChanged || zoomChanged) {
+      map.setView(center, zoom, { animate: true });
+    }
+  }, [center, zoom]);
 
   // expose clear-measurement for the toolbar button
   useEffect(() => {

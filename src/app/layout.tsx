@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Web GIS Manaus — Localidades, Bairros e Zonas",
+  title: "Território Digital - Web GIS Manaus — Localidades, Bairros e Zonas",
   description:
     "Aplicação Web GIS interativa para visualização, análise cartográfica e geração de relatórios das divisões administrativas de Manaus/AM.",
   keywords: [
@@ -27,12 +27,12 @@ export const metadata: Metadata = {
     "Cartografia",
     "Mapa",
   ],
-  authors: [{ name: "Web GIS Manaus" }],
+  authors: [{ name: "Território Digital - Web GIS Manaus" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "Web GIS Manaus — Localidades, Bairros e Zonas",
+    title: "Território Digital - Web GIS Manaus — Localidades, Bairros e Zonas",
     description:
       "Visualização, análise cartográfica e geração de relatórios das divisões de Manaus/AM.",
     type: "website",

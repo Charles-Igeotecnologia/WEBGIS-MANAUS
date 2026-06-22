@@ -19,11 +19,7 @@ const ReportMap = dynamic(() => import("./ReportMap").then((m) => m.ReportMap), 
   ),
 });
 
-interface ReportPanelProps {
-  onFitFeature: () => void;
-}
-
-export function ReportPanel({ onFitFeature }: ReportPanelProps) {
+export function ReportPanel() {
   const reportOpen = useGisStore((s) => s.reportOpen);
   const setReportOpen = useGisStore((s) => s.setReportOpen);
   const reportTitle = useGisStore((s) => s.reportTitle);
@@ -35,6 +31,8 @@ export function ReportPanel({ onFitFeature }: ReportPanelProps) {
   const basemap = useGisStore((s) => s.basemap);
   const center = useGisStore((s) => s.center);
   const zoom = useGisStore((s) => s.zoom);
+  const fitToFeature = useGisStore((s) => s.fitToFeature);
+  const setView = useGisStore((s) => s.setView);
 
   const today = useMemo(
     () =>
@@ -45,6 +43,9 @@ export function ReportPanel({ onFitFeature }: ReportPanelProps) {
       }),
     [],
   );
+
+  const zoomIn = () => setView(center, Math.min(20, zoom + 1));
+  const zoomOut = () => setView(center, Math.max(1, zoom - 1));
 
   if (!reportOpen) return null;
 
@@ -57,7 +58,6 @@ export function ReportPanel({ onFitFeature }: ReportPanelProps) {
       ? [
           { k: "Bairro", v: props.NOME_BAIRR },
           { k: "Zona", v: props.ZONAS },
-          { k: "OBJECTID", v: String(props.OBJECTID) },
           { k: "Município", v: "Manaus" },
           { k: "UF", v: "Amazonas (AM)" },
         ]
@@ -93,13 +93,31 @@ export function ReportPanel({ onFitFeature }: ReportPanelProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={onFitFeature}
+            onClick={fitToFeature}
             disabled={!selected}
-            className="h-8 hidden sm:flex"
+            className="h-8 hidden sm:flex shrink-0"
             title="Ajustar o mapa à feição selecionada"
           >
             <Crosshair className="h-3.5 w-3.5 mr-1.5" />
             Ajustar à feição
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={zoomIn}
+            className="h-8 w-8 hidden sm:flex shrink-0"
+            title="Aumentar Zoom (+)"
+          >
+            <span className="font-bold text-base leading-none">+</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={zoomOut}
+            className="h-8 w-8 hidden sm:flex shrink-0"
+            title="Diminuir Zoom (-)"
+          >
+            <span className="font-bold text-base leading-none">-</span>
           </Button>
           <Button
             size="sm"
@@ -121,144 +139,198 @@ export function ReportPanel({ onFitFeature }: ReportPanelProps) {
         <div className="flex-1 overflow-auto scrollbar-premium p-4 sm:p-6 bg-background/40">
           <div
             id="report-print-area"
-            className="a4-page mx-auto rounded-sm"
-            style={{ width: "210mm", minHeight: "297mm", padding: "14mm 14mm 12mm" }}
+            className="a4-page mx-auto rounded-sm relative flex flex-col"
+            style={{ width: "210mm", minHeight: "297mm", padding: "14mm 14mm 12mm", boxSizing: "border-box" }}
           >
             {/* Header band */}
-            <div style={{ borderBottom: "3px solid #0f766e", paddingBottom: 8, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderBottom: "3px solid #0f766e", paddingBottom: 10, marginBottom: 14 }}>
               <div>
-                <div style={{ fontSize: 9, letterSpacing: 2, fontWeight: 700, color: "#0f766e", textTransform: "uppercase" }}>
-                  Relatório Técnico Cartográfico
-                </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", marginTop: 2 }}>
+                <span style={{ fontSize: 9, letterSpacing: 2, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", display: "block" }}>
+                  Prefeitura Municipal de Manaus · Web GIS
+                </span>
+                <h1 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "2px 0 0 0", lineHeight: 1.1 }}>
                   {reportTitle}
-                </div>
+                </h1>
               </div>
-              <div style={{ textAlign: "right", fontSize: 9, color: "#475569" }}>
-                <div style={{ fontWeight: 700, color: "#0f172a" }}>Web GIS Manaus</div>
-                <div>Município de Manaus / AM</div>
-                <div>{today}</div>
+              <div style={{ textAlign: "right", fontSize: 9, color: "#475569", lineHeight: 1.3 }}>
+                <div style={{ fontWeight: 700, color: "#0f172a" }}>Território Digital e Igeotecnologia</div>
+                <div>Manaus, Amazonas, Brasil</div>
+                <div style={{ fontWeight: 600, color: "#0f766e", marginTop: 2 }}>{today}</div>
               </div>
             </div>
 
-            {/* Map */}
-            <div style={{ position: "relative", border: "1px solid #cbd5e1", borderRadius: 4, overflow: "hidden", marginBottom: 10 }}>
-              <div style={{ height: 110, width: "100%" }}>
+            {/* Map Container */}
+            <div style={{ position: "relative", border: "1px solid #cbd5e1", borderRadius: 6, overflow: "hidden", marginBottom: 14, boxShadow: "0 2px 4px rgba(0,0,0,0.03)" }}>
+              <div style={{ height: 280, width: "100%" }}>
                 <ReportMap />
               </div>
-              <div style={{ position: "absolute", bottom: 4, left: 6, fontSize: 8, color: "#1e293b", background: "rgba(255,255,255,.82)", padding: "2px 5px", borderRadius: 3, border: "1px solid #cbd5e1" }}>
-                Basemap: {BASEMAPS[basemap].label} · Centro: {fmtCoord(center[0], center[1])} · Zoom {zoom}
+              
+              {/* Floating Map Info Overlay */}
+              <div style={{ position: "absolute", bottom: 6, left: 8, zIndex: 1000, fontSize: 8, fontWeight: 500, color: "#334155", background: "rgba(255,255,255,.9)", padding: "3px 6px", borderRadius: 4, border: "1px solid #e2e8f0", backdropFilter: "blur(2px)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+                <strong>Base:</strong> {BASEMAPS[basemap].label} · <strong>Centro:</strong> {fmtCoord(center[0], center[1])} · <strong>Zoom:</strong> {zoom}
               </div>
-              <div style={{ position: "absolute", top: 4, right: 6, fontSize: 8, fontWeight: 700, color: "#0f766e", background: "rgba(255,255,255,.82)", padding: "2px 6px", borderRadius: 3, border: "1px solid #cbd5e1" }}>
-                N ↑
+              
+              {/* North Arrow */}
+              <div style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, fontSize: 10, fontWeight: 800, color: "#0f766e", background: "rgba(255,255,255,.9)", width: 24, height: 24, borderRadius: 12, border: "1px solid #e2e8f0", display: "grid", placeItems: "center", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", select: "none" }}>
+                N
+              </div>
+
+              {/* Floating Map Controls in Preview Mode (Hidden in Print) */}
+              <div
+                className="print:hidden absolute top-3 left-3 flex flex-col gap-1.5"
+                style={{ zIndex: 1000 }}
+              >
+                {selected && (
+                  <button
+                    onClick={fitToFeature}
+                    style={{
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      border: "1px solid #cbd5e1",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    }}
+                    className="flex items-center justify-center h-8 px-2.5 rounded-lg text-xs font-semibold hover:bg-slate-100 transition-colors gap-1.5 cursor-pointer"
+                    title="Focar mapa na feição selecionada"
+                  >
+                    <Crosshair className="h-3.5 w-3.5 text-emerald-600" />
+                    Focar Feição
+                  </button>
+                )}
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={zoomIn}
+                    style={{
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      border: "1px solid #cbd5e1",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    }}
+                    className="flex items-center justify-center h-8 w-8 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Aumentar Zoom (+)"
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={zoomOut}
+                    style={{
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      border: "1px solid #cbd5e1",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    }}
+                    className="flex items-center justify-center h-8 w-8 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Diminuir Zoom (-)"
+                  >
+                    -
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Feature table */}
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                {selected ? (isBairro ? "Feição selecionada — Bairro" : "Feição selecionada — Localidade") : "Nenhuma feição selecionada"}
+            {/* Feature details table */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 4, height: 10, background: "#0f766e", borderRadius: 2 }} />
+                {selected ? (isBairro ? "Informações do Bairro Selecionado" : "Informações da Localidade Selecionada") : "Nenhuma feição selecionada"}
               </div>
+              
               {selected ? (
-                <>
+                <div style={{ border: "1px solid #e2e8f0", borderRadius: 6, overflow: "hidden", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9.5 }}>
                     <tbody>
-                      {rows.map((r) => (
-                        <tr key={r.k} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                          <td style={{ padding: "3px 6px", fontWeight: 600, color: "#475569", width: "32%" }}>{r.k}</td>
-                          <td style={{ padding: "3px 6px", color: "#0f172a" }}>{r.v}</td>
+                      {rows.map((r, idx) => (
+                        <tr key={r.k} style={{ borderBottom: idx === rows.length - 1 ? "none" : "1px solid #e2e8f0", background: idx % 2 === 0 ? "#f8fafc" : "#fff" }}>
+                          <td style={{ padding: "5px 10px", fontWeight: 700, color: "#475569", width: "30%" }}>{r.k}</td>
+                          <td style={{ padding: "5px 10px", color: "#0f172a" }}>{r.v}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 9.5, marginTop: 4 }}>
-                    <thead>
-                      <tr style={{ background: "#0f766e", color: "#fff" }}>
-                        <th style={{ padding: "3px 6px", textAlign: "left", fontSize: 9 }}>Área</th>
-                        <th style={{ padding: "3px 6px", textAlign: "left", fontSize: 9 }}>Perímetro</th>
-                        <th style={{ padding: "3px 6px", textAlign: "left", fontSize: 9 }}>Centroide (lat, lng)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                        <td style={{ padding: "3px 6px" }}>{fmtHa(selected.areaHa * 10000)}</td>
-                        <td style={{ padding: "3px 6px" }}>{fmtM(selected.perimM)}</td>
-                        <td style={{ padding: "3px 6px", fontFamily: "monospace" }}>{fmtCoord(selected.center[0], selected.center[1])}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </>
+                  
+                  {/* Spatial Metrics Sub-Grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderTop: "1px solid #e2e8f0", background: "#f1f5f9" }}>
+                    <div style={{ padding: "6px 10px", borderRight: "1px solid #e2e8f0" }}>
+                      <div style={{ fontSize: 7.5, fontWeight: 700, color: "#475569", textTransform: "uppercase" }}>Área</div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "#0f766e" }}>{fmtHa(selected.areaHa * 10000)}</div>
+                    </div>
+                    <div style={{ padding: "6px 10px", borderRight: "1px solid #e2e8f0" }}>
+                      <div style={{ fontSize: 7.5, fontWeight: 700, color: "#475569", textTransform: "uppercase" }}>Perímetro</div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "#0f766e" }}>{fmtM(selected.perimM)}</div>
+                    </div>
+                    <div style={{ padding: "6px 10px" }}>
+                      <div style={{ fontSize: 7.5, fontWeight: 700, color: "#475569", textTransform: "uppercase" }}>Coordenadas (Lat, Lng)</div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: "#0f172a", fontFamily: "monospace" }}>{fmtCoord(selected.center[0], selected.center[1])}</div>
+                    </div>
+                  </div>
+                </div>
               ) : (
-                <div style={{ fontSize: 9, color: "#64748b", fontStyle: "italic", padding: "6px 0" }}>
-                  Selecione um bairro ou localidade no mapa para preencher esta tabela.
+                <div style={{ fontSize: 9.5, color: "#64748b", fontStyle: "italic", padding: "12px", border: "1px dashed #cbd5e1", borderRadius: 6, textAlign: "center", background: "#f8fafc" }}>
+                  Nenhum polígono ou localidade selecionado. Selecione uma feição no mapa para visualizar e documentar suas propriedades.
                 </div>
               )}
             </div>
 
-            {/* Legend */}
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                Legenda — camadas ativas no recorte
+            {/* Legend Section */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 4, height: 10, background: "#0f766e", borderRadius: 2 }} />
+                Legenda Temática
               </div>
-              {visibleZonas.length === 0 && visibleTipos.length === 0 && (
-                <div style={{ fontSize: 9, color: "#64748b", fontStyle: "italic" }}>
-                  Nenhuma camada ativa.
-                </div>
-              )}
-              {visibleZonas.length > 0 && (
-                <div style={{ marginBottom: 4 }}>
-                  <div style={{ fontSize: 8.5, fontWeight: 700, color: "#475569", marginBottom: 2 }}>Bairros por zona</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px" }}>
-                    {visibleZonas.map((z) => (
-                      <div key={z} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 8.5 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: 2, background: ZONA_COLORS[z], border: "1px solid #00000020" }} />
-                        {z}
-                      </div>
-                    ))}
+              <div style={{ border: "1px solid #e2e8f0", borderRadius: 6, padding: "8px 12px", background: "#f8fafc" }}>
+                {visibleZonas.length === 0 && visibleTipos.length === 0 && (
+                  <div style={{ fontSize: 9, color: "#64748b", fontStyle: "italic", textAlign: "center", padding: "4px 0" }}>
+                    Nenhuma camada de dados ativa no recorte do mapa.
                   </div>
-                </div>
-              )}
-              {visibleTipos.length > 0 && (
-                <div>
-                  <div style={{ fontSize: 8.5, fontWeight: 700, color: "#475569", marginBottom: 2 }}>Localidades por tipo</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px" }}>
-                    {visibleTipos.map((t) => (
-                      <div key={t} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 8.5 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: 2, background: TIPO_COLORS[t], border: "1px solid #00000020" }} />
-                        {t}
-                      </div>
-                    ))}
+                )}
+                {visibleZonas.length > 0 && (
+                  <div style={{ marginBottom: 6 }}>
+                    <div style={{ fontSize: 7.5, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.2px", marginBottom: 3 }}>Zonas Urbanas (Bairros)</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px" }}>
+                      {visibleZonas.map((z) => (
+                        <div key={z} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 8.5, fontWeight: 500, color: "#1e293b" }}>
+                          <span style={{ width: 10, height: 10, borderRadius: 3, background: ZONA_COLORS[z], border: "1px solid rgba(0,0,0,0.15)", display: "inline-block" }} />
+                          {z}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                {visibleTipos.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 7.5, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.2px", marginBottom: 3 }}>Tipos de Localidades</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px" }}>
+                      {visibleTipos.map((t) => (
+                        <div key={t} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 8.5, fontWeight: 500, color: "#1e293b" }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: TIPO_COLORS[t], border: "1px solid rgba(0,0,0,0.15)", display: "inline-block" }} />
+                          {t}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Notes */}
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                Observações técnicas
+            {/* Notes Section */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#0f766e", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 4, height: 10, background: "#0f766e", borderRadius: 2 }} />
+                Notas e Considerações Técnicas
               </div>
-              <div
-                style={{
-                  border: "1px solid #cbd5e1",
-                  borderRadius: 4,
-                  padding: 0,
-                  minHeight: 48,
-                  background: "#fff",
-                }}
-              >
+              <div style={{ border: "1px solid #cbd5e1", borderRadius: 6, overflow: "hidden", background: "#fff", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.02)" }}>
                 <textarea
                   value={reportNotes}
                   onChange={(e) => setReportNotes(e.target.value)}
-                  placeholder="Digite observações, fontes, metodologia ou anotações de campo..."
+                  placeholder="Redija considerações técnicas adicionais, pareceres, metodologia aplicada, fontes secundárias ou informações de levantamento de campo..."
                   style={{
                     width: "100%",
-                    minHeight: 48,
+                    minHeight: 65,
                     border: "none",
                     outline: "none",
-                    resize: "vertical",
-                    padding: "5px 7px",
+                    resize: "none",
+                    padding: "8px 10px",
                     fontSize: 9.5,
+                    lineHeight: 1.4,
                     fontFamily: "inherit",
                     color: "#0f172a",
                     background: "transparent",
@@ -268,11 +340,11 @@ export function ReportPanel({ onFitFeature }: ReportPanelProps) {
             </div>
 
             {/* Footer */}
-            <div style={{ marginTop: 10, paddingTop: 6, borderTop: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", fontSize: 8, color: "#64748b" }}>
+            <div style={{ marginTop: "auto", paddingTop: 8, borderTop: "1px solid #cbd5e1", display: "flex", justifyContent: "space-between", fontSize: 8, color: "#64748b" }}>
               <div>
-                <strong style={{ color: "#0f172a" }}>Fonte:</strong> Dados vetoriais — Bairros &amp; Localidades de Manaus/AM · Web GIS Manaus
+                <strong>Fonte Cartográfica:</strong> Dados vetoriais integrados — Bairros &amp; Localidades de Manaus/AM
               </div>
-              <div>Página 1/1</div>
+              <div>Território Digital - Web GIS Manaus · Documento Técnico · Página 1 de 1</div>
             </div>
           </div>
         </div>
