@@ -1,0 +1,317 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/*
+  Premium Dark Theme — Web GIS Manaus
+  Deep charcoal base with emerald + amber cartographic accents.
+  The entire app is dark; we set dark values on :root directly.
+*/
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.16 0.012 250);
+  --foreground: oklch(0.97 0.005 250);
+
+  --card: oklch(0.205 0.014 250);
+  --card-foreground: oklch(0.97 0.005 250);
+
+  --popover: oklch(0.22 0.014 250);
+  --popover-foreground: oklch(0.97 0.005 250);
+
+  /* Emerald primary */
+  --primary: oklch(0.72 0.15 162);
+  --primary-foreground: oklch(0.16 0.02 162);
+
+  --secondary: oklch(0.27 0.012 250);
+  --secondary-foreground: oklch(0.95 0.005 250);
+
+  --muted: oklch(0.25 0.01 250);
+  --muted-foreground: oklch(0.68 0.012 250);
+
+  /* Amber accent */
+  --accent: oklch(0.78 0.14 75);
+  --accent-foreground: oklch(0.18 0.02 75);
+
+  --destructive: oklch(0.66 0.2 22);
+
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.15 162 / 60%);
+
+  --chart-1: oklch(0.72 0.15 162);
+  --chart-2: oklch(0.78 0.14 75);
+  --chart-3: oklch(0.65 0.2 22);
+  --chart-4: oklch(0.7 0.15 195);
+  --chart-5: oklch(0.72 0.18 305);
+
+  --sidebar: oklch(0.19 0.013 250);
+  --sidebar-foreground: oklch(0.97 0.005 250);
+  --sidebar-primary: oklch(0.72 0.15 162);
+  --sidebar-primary-foreground: oklch(0.16 0.02 162);
+  --sidebar-accent: oklch(0.27 0.012 250);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(1 0 0 / 9%);
+  --sidebar-ring: oklch(0.72 0.15 162 / 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    @apply bg-background text-foreground;
+  }
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ============================================================
+   Custom scrollbar (premium dark)
+   ============================================================ */
+.scrollbar-premium {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(1 0 0 / 18%) transparent;
+}
+.scrollbar-premium::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-premium::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-premium::-webkit-scrollbar-thumb {
+  background-color: oklch(1 0 0 / 16%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.scrollbar-premium::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(1 0 0 / 28%);
+}
+
+/* ============================================================
+   Leaflet — premium dark theming
+   ============================================================ */
+.leaflet-container {
+  background: oklch(0.13 0.012 250);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+.leaflet-bar,
+.leaflet-control-attribution,
+.leaflet-control-scale {
+  background: oklch(0.2 0.014 250 / 85%);
+  backdrop-filter: blur(10px);
+  border: 1px solid oklch(1 0 0 / 10%) !important;
+  border-radius: 10px !important;
+  color: oklch(0.95 0.005 250);
+  box-shadow: 0 4px 20px oklch(0 0 0 / 35%);
+  overflow: hidden;
+}
+.leaflet-bar a,
+.leaflet-control-attribution a {
+  color: oklch(0.92 0.01 250);
+  border-bottom: 1px solid oklch(1 0 0 / 8%);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.leaflet-bar a:hover {
+  background: oklch(0.72 0.15 162 / 22%);
+  color: oklch(0.95 0.12 162);
+}
+.leaflet-bar a:first-child {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+.leaflet-bar a:last-child {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px !important;
+}
+.leaflet-control-attribution a {
+  color: oklch(0.72 0.15 162);
+}
+.leaflet-control-scale-line {
+  background: oklch(0.2 0.014 250 / 80%);
+  color: oklch(0.95 0.005 250);
+  border-color: oklch(1 0 0 / 25%);
+}
+.leaflet-control-zoom {
+  border: none !important;
+}
+
+/* Halo cartographic labels for bairros — high contrast over satellite */
+.bairro-halo-label {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  white-space: nowrap;
+}
+.bairro-halo-label .bairro-label-text {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: oklch(0.99 0 0);
+  text-shadow:
+    -1.5px -1.5px 0 #000,
+    1.5px -1.5px 0 #000,
+    -1.5px 1.5px 0 #000,
+    1.5px 1.5px 0 #000,
+    0 0 4px #000,
+    0 0 8px oklch(0 0 0 / 80%);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Smaller tooltip / floating labels */
+.leaflet-tooltip.gis-tooltip {
+  background: oklch(0.16 0.014 250 / 92%);
+  backdrop-filter: blur(8px);
+  color: oklch(0.97 0.005 250);
+  border: 1px solid oklch(0.72 0.15 162 / 45%);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 6px 22px oklch(0 0 0 / 45%);
+}
+.leaflet-tooltip.gis-tooltip::before {
+  border-top-color: oklch(0.72 0.15 162 / 45%);
+}
+
+/* Measurement / proximity markers */
+.measure-popup .leaflet-popup-content-wrapper {
+  background: oklch(0.16 0.014 250 / 95%);
+  color: oklch(0.97 0.005 250);
+  border: 1px solid oklch(0.78 0.14 75 / 50%);
+  border-radius: 8px;
+}
+
+/* ============================================================
+   Animations & utilities
+   ============================================================ */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-18px) translateX(8px); }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.7); opacity: 0.8; }
+  80%, 100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes grid-pan {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+.animate-float-slow { animation: float-slow 9s ease-in-out infinite; }
+.animate-pulse-ring { animation: pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite; }
+
+.glass-panel {
+  background: oklch(0.2 0.014 250 / 72%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid oklch(1 0 0 / 10%);
+}
+
+.text-gradient-emerald {
+  background: linear-gradient(110deg, oklch(0.82 0.16 162), oklch(0.78 0.14 75));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Cartographic grid backdrop for hero */
+.cartographic-grid {
+  background-image:
+    linear-gradient(oklch(0.72 0.15 162 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.72 0.15 162 / 7%) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* A4 report preview */
+.a4-page {
+  background: #ffffff;
+  color: #1a1a1a;
+  box-shadow: 0 24px 60px oklch(0 0 0 / 55%);
+}
+.a4-page * {
+  color: #1a1a1a;
+}
+
+/* Premium gradient ring for active tool button */
+.tool-active {
+  background: linear-gradient(135deg, oklch(0.72 0.15 162), oklch(0.68 0.16 180));
+  color: oklch(0.13 0.02 162);
+  box-shadow: 0 0 0 1px oklch(0.72 0.15 162 / 60%), 0 8px 24px oklch(0.72 0.15 162 / 30%);
+}
+
+/* Hide scrollbar on the map controls but keep scrollable */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Print: only the A4 page */
+@media print {
+  body * { visibility: hidden; }
+  #report-print-area, #report-print-area * { visibility: visible; }
+  #report-print-area {
+    position: absolute !important;
+    left: 0; top: 0;
+    width: 210mm;
+    margin: 0;
+    box-shadow: none;
+  }
+  @page { size: A4; margin: 0; }
+}
