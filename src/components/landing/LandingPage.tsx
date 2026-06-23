@@ -231,6 +231,43 @@ export function LandingPage({ onLaunch }: LandingPageProps) {
                   </a>
                 </Button>
               </motion.div>
+
+              <motion.div variants={item} className="mt-14 pt-8 border-t border-border/40">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80 mb-4">
+                  Apoio e Software
+                </p>
+                <div className="flex flex-wrap items-center gap-4">
+                  {[
+                    {
+                      src: "https://yt3.googleusercontent.com/F9b_TQzrPQ30Tihlh1GB7uyLVMNxq5TUcjQk2NKmdbd1EPgPpeCoa-bGAVT3-Z6n4er1NcT-=s900-c-k-c0x00ffffff-no-rj",
+                      alt: "Igeotecnologia",
+                    },
+                    {
+                      src: "https://www.esri-portugal.pt/content/dam/distributor-share/esri-pt/artigos/arcgis-pro.png",
+                      alt: "ArcGIS Pro",
+                    },
+                    {
+                      src: "https://hackernoon.imgix.net/images/9SBj6OzMvXOEhDxTjjuu75pLYnp1-vn83emp.jpeg",
+                      alt: "Leaflet",
+                    },
+                    {
+                      src: "https://blog.kubesimplify.com/img/blog/git-and-github-a-beginners-guide/q3I5kJ5U9.jpeg",
+                      alt: "Git & GitHub",
+                    },
+                  ].map((logo, idx) => (
+                    <div
+                      key={idx}
+                      className="h-14 px-4 rounded-xl bg-secondary/10 border border-border/30 flex items-center justify-center hover:border-emerald-500/30 hover:bg-secondary/25 transition-all duration-300 shadow-sm"
+                    >
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        className="h-9 max-w-[130px] object-contain rounded-md filter opacity-85 hover:opacity-100 transition-all duration-300"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* stats */}
