@@ -257,12 +257,12 @@ export function LandingPage({ onLaunch }: LandingPageProps) {
                   ].map((logo, idx) => (
                     <div
                       key={idx}
-                      className="h-20 px-6 rounded-2xl bg-secondary/20 border border-border/60 flex items-center justify-center hover:border-emerald-500/40 hover:bg-secondary/35 hover:scale-[1.03] transition-all duration-300 shadow-md"
+                      className="h-24 px-6 rounded-lg bg-secondary/5 border border-border/30 flex items-center justify-center hover:border-emerald-500/20 hover:scale-[1.02] transition-all duration-300"
                     >
                       <img
                         src={logo.src}
                         alt={logo.alt}
-                        className="h-13 max-w-[160px] object-contain rounded-lg filter opacity-95 hover:opacity-100 transition-all duration-300"
+                        className="h-16 max-w-[180px] object-contain rounded-md filter grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
                       />
                     </div>
                   ))}
